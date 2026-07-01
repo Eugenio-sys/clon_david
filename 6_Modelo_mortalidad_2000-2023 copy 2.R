@@ -1,11 +1,3 @@
-# user 2 made this change
-x_5 <- 7
-# User 1 hizo este cambio
-x_1 <- 7
-x_2 <- 7
-x_3 <- 7
-x_4 <- 7
-x_6 <- 7
 ################################################
 ### Modelo para mortalidad en areas pequeñas ###
 ################################################
