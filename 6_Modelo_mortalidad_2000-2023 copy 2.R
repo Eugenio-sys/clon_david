@@ -337,6 +337,122 @@ fit_pc$summary.fitted.values$mean
 fit_pc$summary.fitted.values$`0.025quant`
 fit_pc$summary.fitted.values$`0.975quant` 
 
+#################
+# Begin Eugenio #
+#################
+
+################
+# Con epitools #
+################
+
+std <- pred %>%
+  group_by(agegroup) %>%
+  summarise(std_pop   = sum(population),
+            std_count = sum(deaths),
+            .groups   = "drop")
+
+std_sex <- pred %>%
+  group_by(agegroup, sex) %>%
+  summarise(std_pop   = sum(population),
+            std_count = sum(deaths),
+            .groups   = "drop")
+
+pred2 <- pred %>%
+  left_join(std, by = c("agegroup"))
+
+pred2_sex <- pred %>%
+  left_join(std_sex, by = c("agegroup", "sex"))
+
+tasas_directas <- pred2 %>%
+  group_by(region, period, sex) %>%
+  group_modify(~ {
+    r <- ageadjust.direct(
+      count  = .x$deaths,
+      pop    = .x$population,
+      stdpop = .x$std_pop
+    )
+    tibble(
+      tasa_cruda    = r[["crude.rate"]] * 1e5,
+      tasa_ajustada = r[["adj.rate"]]   * 1e5,
+      ic_inf        = r[["lci"]]        * 1e5,
+      ic_sup        = r[["uci"]]        * 1e5
+    )
+  }) %>%
+  ungroup()
+
+smr <- pred2_sex %>%
+  group_by(region, period, sex) %>%
+  group_modify(~ {
+    r <- ageadjust.indirect(
+      count    = .x$deaths,
+      pop      = .x$population,
+      stdcount = .x$std_count,
+      stdpop   = .x$std_pop
+    )
+    tibble(
+      observados = r$sir[["observed"]],
+      esperados  = r$sir[["exp"]],
+      smr        = r$sir[["sir"]],
+      ic_inf     = r$sir[["lci"]],
+      ic_sup     = r$sir[["uci"]]
+    )
+  }) %>%
+  ungroup()
+
+###########
+# Con dsr #
+###########
+# std_ref <- pred %>%
+#   group_by(agegroup) %>%
+#   summarise(pop = sum(population), .groups = "drop")
+# 
+# datos <- pred %>%
+#   mutate(unidad = paste(region, period, sex, sep = " | "))
+# 
+# mortality_rate <- dsr::dsr(
+#   data     = datos,
+#   event    = deaths,        # numerador: muertes por estrato
+#   fu       = population,    # follow-up = personas-año por estrato
+#   subgroup = unidad,        # unidades a comparar
+#   agegroup,                 # estandarizamos por edad
+#   refdata  = std_ref,       # referencia, columna "pop"
+#   method   = "gamma",
+#   sig      = 0.95,
+#   mp       = 100000,        # tasa por 100.000
+#   decimals = 2
+# )
+# 
+# mortality_rate <- mortality_rate %>%
+#   separate(Subgroup, into = c("region","period","sex"), sep = " \\| ")
+
+###########################
+# Con PHEindicatormethods #
+###########################
+
+std_age <- pred %>%
+  group_by(agegroup) %>%
+  summarise(std_pop = sum(population), .groups = "drop")
+
+pred_phe <- pred %>%
+  left_join(std_age, by = "agegroup")
+
+mortality_ds_phe <- pred_phe %>%
+  group_by(region, period, sex) %>%
+  PHEindicatormethods::phe_dsr(
+    x          = deaths,       # eventos observados por estrato (numerador)
+    n          = population,   # personas-año por estrato (denominador)
+    stdpop     = std_pop,      # población estándar por estrato (la columna unida)
+    stdpoptype = "field",      # "field" = el estándar está en los datos; "vector" = vector aparte
+    type       = "full",       # todas las columnas (conteos, tasa, IC, método)
+    confidence = 0.95,         # nivel de confianza (default ya es 0.95)
+    multiplier = 1e5           # tasa por 100.000 (default ya es 1e5)
+  )
+
+###############
+# End Eugenio #
+###############
+
+
 ######################################
 ######################################
 ######################################
