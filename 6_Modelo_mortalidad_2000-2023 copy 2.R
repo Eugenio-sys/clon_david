@@ -1,6 +1,7 @@
 # User 1 hizo este cambio
-lambda <- 7
-holi_mundo <- 7
+x_1 <- 7
+x_2 <- 7
+
 ################################################
 ### Modelo para mortalidad en areas pequeñas ###
 ################################################
