@@ -1,4 +1,4 @@
-# usuario 1
+# usuario 1 hizo estas modificaciones
 ################################################
 ### Modelo para mortalidad en areas pequeñas ###
 ################################################
