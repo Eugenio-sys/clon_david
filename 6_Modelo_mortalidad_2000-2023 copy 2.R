@@ -1,3 +1,5 @@
+# Este cambio lo hizo user 3
+x1 = 7
 ################################################
 ### Modelo para mortalidad en areas pequeñas ###
 ################################################
