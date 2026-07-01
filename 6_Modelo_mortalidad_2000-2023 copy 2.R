@@ -1,4 +1,5 @@
-# user 1 made this change
+# User 1 hizo este cambio
+lambda <- 7
 ################################################
 ### Modelo para mortalidad en areas pequeñas ###
 ################################################
