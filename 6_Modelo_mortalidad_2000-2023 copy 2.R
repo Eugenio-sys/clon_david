@@ -1,5 +1,3 @@
-# Este cambio lo hizo user 3
-x1 = 7
 ################################################
 ### Modelo para mortalidad en areas pequeñas ###
 ################################################
@@ -1133,7 +1131,7 @@ samples_long <- samples %>%
   pivot_longer(-prior, names_to = "hyperpar", values_to = "value")
 
 # Para ver cuáles son los hiperparámetros que estamos usando 
-unique(muestras_long$hyperpar)
+unique(samples_long$hyperpar)
 
 p1 <- ggplot(samples_long, aes(x = value, fill = prior)) +
   geom_histogram(bins = 80, alpha = 0.6, position = "identity",
